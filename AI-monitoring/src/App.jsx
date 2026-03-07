@@ -1,12 +1,23 @@
 import { useState, useEffect, useRef } from "react";
 
 const CLASSROOMS = [
-  { id: 1, name: "5-A Sinf", domain: "cam://192.168.1.101", floor: "1-qavat", subject: "Matematika", teacher: "Azimov B.", students: 28 },
-  { id: 2, name: "5-B Sinf", domain: "cam://192.168.1.102", floor: "1-qavat", subject: "Fizika", teacher: "Karimova N.", students: 30 },
-  { id: 3, name: "6-A Sinf", domain: "cam://192.168.1.103", floor: "2-qavat", subject: "Biologiya", teacher: "Toshmatov A.", students: 26 },
-  { id: 4, name: "6-B Sinf", domain: "cam://192.168.1.104", floor: "2-qavat", subject: "Ingliz tili", teacher: "Yusupova M.", students: 29 },
-  { id: 5, name: "7-A Sinf", domain: "cam://192.168.1.105", floor: "3-qavat", subject: "Kimyo", teacher: "Rahimov S.", students: 27 },
-  { id: 6, name: "7-B Sinf", domain: "cam://192.168.1.106", floor: "3-qavat", subject: "Tarix", teacher: "Nazarova D.", students: 31 },
+  { id: 1, name: "5-A Sinf", domain: "cam://192.168.1.101", floor: "3-qavat", subject: "Matematika", teacher: "Azimov B.", students: 24 },
+  { id: 2, name: "5-B Sinf", domain: "cam://192.168.1.102", floor: "3-qavat", subject: "Fizika", teacher: "Karimova N.", students: 24 },
+  { id: 3, name: "6-A Sinf", domain: "cam://192.168.1.103", floor: "2-qavat", subject: "Biologiya", teacher: "Toshmatov A.", students: 24 },
+  { id: 4, name: "6-B Sinf", domain: "cam://192.168.1.104", floor: "2-qavat", subject: "Ingliz tili", teacher: "Yusupova M.", students: 24 },
+  { id: 5, name: "7-A Sinf", domain: "cam://192.168.1.105", floor: "2-qavat", subject: "Kimyo", teacher: "Rahimov S.", students: 24 },
+  { id: 6, name: "7-B Sinf", domain: "cam://192.168.1.106", floor: "2-qavat", subject: "Tarix", teacher: "Nazarova D.", students: 24 },
+  { id: 7, name: "8-A Sinf", domain: "cam://192.168.1.107", floor: "1-qavat", subject: "Matematika", teacher: "Azimov B.", students: 24 },
+  { id: 8, name: "8-B Sinf", domain: "cam://192.168.1.108", floor: "1-qavat", subject: "Fizika", teacher: "Karimova N.", students: 24 },
+  { id: 9, name: "8-D Sinf", domain: "cam://192.168.1.109", floor: "1-qavat", subject: "Fizika", teacher: "Karimova N.", students: 24 },
+  { id: 10, name: "9-A Sinf", domain: "cam://192.168.1.110", floor: "1-qavat", subject: "Fizika", teacher: "Karimova N.", students: 24 },
+  { id: 11, name: "9-B Sinf", domain: "cam://192.168.1.111", floor: "1-qavat", subject: "Fizika", teacher: "Karimova N.", students: 24 },
+  { id: 12, name: "9-D Sinf", domain: "cam://192.168.1.112", floor: "1-qavat", subject: "Fizika", teacher: "Karimova N.", students: 24 },
+  { id: 13, name: "10-A Sinf", domain: "cam://192.168.1.113", floor: "1-qavat", subject: "Fizika", teacher: "Karimova N.", students: 24 },
+  { id: 14, name: "10-B Sinf", domain: "cam://192.168.1.114", floor: "1-qavat", subject: "Fizika", teacher: "Karimova N.", students: 24 },
+  { id: 15, name: "11-A Sinf", domain: "cam://192.168.1.115", floor: "1-qavat", subject: "Fizika", teacher: "Karimova N.", students: 24 },
+  { id: 16, name: "11-B Sinf", domain: "cam://192.168.1.116", floor: "1-qavat", subject: "Fizika", teacher: "Karimova N.", students: 24 },
+  { id: 17, name: "11-D Sinf", domain: "cam://192.168.1.117", floor: "1-qavat", subject: "Fizika", teacher: "Karimova N.", students: 24 },
 ];
 
 const HOUR_DATA = [
@@ -418,7 +429,11 @@ export default function App() {
 
   return (
     <div style={{
-      minHeight: "100vh", background: "#030806",
+      minHeight: "100vh",
+      // maxWidth: 1200, 
+      margin: "0 auto",
+      justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column",
+      background: "#030806",
       fontFamily: "'Courier New', monospace",
       color: "#c8ffd8",
     }}>
@@ -447,7 +462,7 @@ export default function App() {
             CLASSWATCH AI
           </div>
           <div style={{ fontSize: 8, color: "#446644", letterSpacing: 2 }}>
-            SINF KUZATUV TIZIMI v2.0
+            SINF KUZATUV TIZIMI
           </div>
         </div>
         <div style={{ marginLeft: "auto", display: "flex", gap: 20, alignItems: "center" }}>
