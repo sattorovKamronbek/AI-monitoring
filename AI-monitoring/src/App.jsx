@@ -1,380 +1,255 @@
 import { useState, useEffect, useRef } from "react";
 
-const CLASSROOMS = [
-  { id: 1, name: "5-A Sinf", domain: "cam://192.168.1.101", floor: "3-qavat", subject: "Matematika", teacher: "Azimov B.", students: 24 },
-  { id: 2, name: "5-B Sinf", domain: "cam://192.168.1.102", floor: "3-qavat", subject: "Fizika", teacher: "Karimova N.", students: 24 },
-  { id: 3, name: "6-A Sinf", domain: "cam://192.168.1.103", floor: "2-qavat", subject: "Biologiya", teacher: "Toshmatov A.", students: 24 },
-  { id: 4, name: "6-B Sinf", domain: "cam://192.168.1.104", floor: "2-qavat", subject: "Ingliz tili", teacher: "Yusupova M.", students: 24 },
-  { id: 5, name: "7-A Sinf", domain: "cam://192.168.1.105", floor: "2-qavat", subject: "Kimyo", teacher: "Rahimov S.", students: 24 },
-  { id: 6, name: "7-B Sinf", domain: "cam://192.168.1.106", floor: "2-qavat", subject: "Tarix", teacher: "Nazarova D.", students: 24 },
-  { id: 7, name: "8-A Sinf", domain: "cam://192.168.1.107", floor: "1-qavat", subject: "Matematika", teacher: "Azimov B.", students: 24 },
-  { id: 8, name: "8-B Sinf", domain: "cam://192.168.1.108", floor: "1-qavat", subject: "Fizika", teacher: "Karimova N.", students: 24 },
-  { id: 9, name: "8-D Sinf", domain: "cam://192.168.1.109", floor: "1-qavat", subject: "Fizika", teacher: "Karimova N.", students: 24 },
-  { id: 10, name: "9-A Sinf", domain: "cam://192.168.1.110", floor: "1-qavat", subject: "Fizika", teacher: "Karimova N.", students: 24 },
-  { id: 11, name: "9-B Sinf", domain: "cam://192.168.1.111", floor: "1-qavat", subject: "Fizika", teacher: "Karimova N.", students: 24 },
-  { id: 12, name: "9-D Sinf", domain: "cam://192.168.1.112", floor: "1-qavat", subject: "Fizika", teacher: "Karimova N.", students: 24 },
-  { id: 13, name: "10-A Sinf", domain: "cam://192.168.1.113", floor: "1-qavat", subject: "Fizika", teacher: "Karimova N.", students: 24 },
-  { id: 14, name: "10-B Sinf", domain: "cam://192.168.1.114", floor: "1-qavat", subject: "Fizika", teacher: "Karimova N.", students: 24 },
-  { id: 15, name: "11-A Sinf", domain: "cam://192.168.1.115", floor: "1-qavat", subject: "Fizika", teacher: "Karimova N.", students: 24 },
-  { id: 16, name: "11-B Sinf", domain: "cam://192.168.1.116", floor: "1-qavat", subject: "Fizika", teacher: "Karimova N.", students: 24 },
-  { id: 17, name: "11-D Sinf", domain: "cam://192.168.1.117", floor: "1-qavat", subject: "Fizika", teacher: "Karimova N.", students: 24 },
+const ROOMS = [
+  { id: 1, name: "Xona 101", teacher: "Azimov B.",   subject: "Matematika",  domain: "cam://192.168.1.101", floor: "1-qavat" },
+  { id: 2, name: "Xona 102", teacher: "Karimova N.", subject: "Fizika",      domain: "cam://192.168.1.102", floor: "1-qavat" },
+  { id: 3, name: "Xona 201", teacher: "Toshmatov A.",subject: "Biologiya",   domain: "cam://192.168.1.103", floor: "2-qavat" },
+  { id: 4, name: "Xona 202", teacher: "Yusupova M.", subject: "Ingliz tili", domain: "cam://192.168.1.104", floor: "2-qavat" },
+  { id: 5, name: "Xona 301", teacher: "Rahimov S.",  subject: "Kimyo",       domain: "cam://192.168.1.105", floor: "3-qavat" },
+  { id: 6, name: "Xona 302", teacher: "Nazarova D.", subject: "Tarix",       domain: "cam://192.168.1.106", floor: "3-qavat" },
 ];
 
-const HOUR_DATA = [
-  { hour: "08:00", engagement: 72, attention: 68, behavior: 91 },
-  { hour: "09:00", engagement: 85, attention: 79, behavior: 88 },
-  { hour: "10:00", engagement: 61, attention: 55, behavior: 82 },
-  { hour: "11:00", engagement: 90, attention: 88, behavior: 94 },
-  { hour: "12:00", engagement: 45, attention: 40, behavior: 76 },
-  { hour: "13:00", engagement: 78, attention: 72, behavior: 89 },
-  { hour: "14:00", engagement: 83, attention: 81, behavior: 92 },
+const CLASSES = ["5-A","5-B","6-A","6-B","7-A","7-B"];
+const CLASS_SIZES = {"5-A":28,"5-B":30,"6-A":26,"6-B":29,"7-A":27,"7-B":31};
+
+// period:null = break/bigbreak
+const SCHEDULE = [
+  { period:1, label:"1-dars",        start:"08:30",end:"09:15",type:"lesson" },
+  { period:null,label:"Tanaffus",    start:"09:15",end:"09:20",type:"break",  duration:5 },
+  { period:2, label:"2-dars",        start:"09:20",end:"10:05",type:"lesson" },
+  { period:null,label:"Katta tanaffus",start:"10:05",end:"10:20",type:"bigbreak",duration:15 },
+  { period:3, label:"3-dars",        start:"10:20",end:"11:05",type:"lesson" },
+  { period:null,label:"Tanaffus",    start:"11:05",end:"11:10",type:"break",  duration:5 },
+  { period:4, label:"4-dars",        start:"11:10",end:"11:55",type:"lesson" },
+  { period:null,label:"Tanaffus",    start:"11:55",end:"12:00",type:"break",  duration:5 },
+  { period:5, label:"5-dars",        start:"12:00",end:"12:45",type:"lesson" },
+  { period:null,label:"Katta tanaffus",start:"12:45",end:"13:20",type:"bigbreak",duration:35 },
+  { period:6, label:"6-dars",        start:"13:20",end:"14:05",type:"lesson" },
+  { period:null,label:"Tanaffus",    start:"14:05",end:"14:10",type:"break",  duration:5 },
+  { period:7, label:"7-dars",        start:"14:10",end:"14:55",type:"lesson" },
+  { period:null,label:"Tanaffus/Dars tugadi",  start:"14:55",end:"15:00",type:"break",  duration:5 },
+  { period:8, label:"8-dars",        start:"15:00",end:"15:45",type:"lesson" },
 ];
 
-function generateStudentData(count) {
-  const statuses = ["Diqqatli", "Chalg'igan", "Uxlab qolgan", "Faol", "Jimgina"];
-  const colors = ["#00ff88", "#ffaa00", "#ff4455", "#00ccff", "#aa88ff"];
-  return Array.from({ length: Math.min(count, 12) }, (_, i) => ({
-    id: i + 1,
-    status: statuses[Math.floor(Math.random() * statuses.length)],
-    color: colors[Math.floor(Math.random() * colors.length)],
-    score: Math.floor(Math.random() * 40) + 60,
-    x: 15 + (i % 6) * 14,
-    y: i < 6 ? 30 : 65,
-  }));
+const ROTATION = {
+  1:["5-A","5-B","6-A","6-B","7-A","7-B"],
+  2:["6-B","5-A","7-A","5-B","7-B","6-A"],
+  3:["7-A","6-B","5-B","7-B","6-A","5-A"],
+  4:["5-B","7-A","7-B","6-A","5-A","6-B"],
+  5:["7-B","6-A","5-A","7-A","6-B","5-B"],
+  6:["6-A","7-B","6-B","5-A","5-B","7-A"],
+  7:["5-A","6-A","7-B","5-B","7-A","6-B"],
+};
+
+function parseTime(str){ const [h,m]=str.split(":").map(Number); return h*60+m; }
+
+function getCurrentSlot(totalMins){
+  for(let i=0;i<SCHEDULE.length;i++){
+    const s=SCHEDULE[i];
+    const start=parseTime(s.start), end=parseTime(s.end);
+    if(totalMins>=start && totalMins<end) return {slot:s,index:i,elapsed:totalMins-start,total:end-start};
+  }
+  return null;
 }
 
-function CameraFeed({ classroom, isSelected, onClick }) {
-  const canvasRef = useRef(null);
-  const animRef = useRef(null);
-  const timeRef = useRef(0);
-  const studentsRef = useRef(generateStudentData(classroom.students));
+function CameraFeed({room, currentClass, isSelected, onClick}){
+  const canvasRef=useRef(null);
+  const animRef=useRef(null);
+  const tc=useRef(0);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    const W = canvas.width, H = canvas.height;
+  useEffect(()=>{
+    const canvas=canvasRef.current; if(!canvas) return;
+    const ctx=canvas.getContext("2d");
+    const W=canvas.width, H=canvas.height;
+    const count=currentClass ? CLASS_SIZES[currentClass] : 0;
 
-    const draw = () => {
-      timeRef.current += 0.02;
-      const t = timeRef.current;
+    const draw=()=>{
+      tc.current+=0.018;
+      const t=tc.current;
+      ctx.fillStyle="#040a06"; ctx.fillRect(0,0,W,H);
 
-      // Background - classroom
-      ctx.fillStyle = "#0a0e14";
-      ctx.fillRect(0, 0, W, H);
-
-      // Room floor
-      const floorGrad = ctx.createLinearGradient(0, H * 0.5, 0, H);
-      floorGrad.addColorStop(0, "#12181f");
-      floorGrad.addColorStop(1, "#0d1117");
-      ctx.fillStyle = floorGrad;
-      ctx.fillRect(0, H * 0.5, W, H * 0.5);
-
-      // Grid lines (floor perspective)
-      ctx.strokeStyle = "rgba(0,200,100,0.06)";
-      ctx.lineWidth = 0.5;
-      for (let i = 0; i < 8; i++) {
-        ctx.beginPath();
-        ctx.moveTo(W * 0.5, H * 0.5);
-        ctx.lineTo((i / 7) * W, H);
-        ctx.stroke();
-      }
-      for (let j = 1; j < 4; j++) {
-        ctx.beginPath();
-        ctx.moveTo(0, H * 0.5 + (j / 4) * H * 0.5);
-        ctx.lineTo(W, H * 0.5 + (j / 4) * H * 0.5);
-        ctx.stroke();
-      }
-
-      // Blackboard
-      ctx.fillStyle = "#0f2a1a";
-      ctx.strokeStyle = "#1a4a2a";
-      ctx.lineWidth = 1;
-      ctx.fillRect(W * 0.15, H * 0.05, W * 0.7, H * 0.28);
-      ctx.strokeRect(W * 0.15, H * 0.05, W * 0.7, H * 0.28);
-      // Board text simulation
-      ctx.strokeStyle = `rgba(180,220,180,${0.3 + Math.sin(t * 0.1) * 0.05})`;
-      ctx.lineWidth = 0.8;
-      for (let l = 0; l < 4; l++) {
-        ctx.beginPath();
-        ctx.moveTo(W * 0.2, H * 0.1 + l * 14);
-        ctx.lineTo(W * 0.2 + W * 0.2 * Math.random() * 0.8 + W * 0.2, H * 0.1 + l * 14);
-        ctx.stroke();
-      }
-
-      // Teacher dot
-      const tx = W * 0.5 + Math.sin(t * 0.3) * W * 0.08;
-      const ty = H * 0.42;
-      ctx.beginPath();
-      ctx.arc(tx, ty, 5, 0, Math.PI * 2);
-      ctx.fillStyle = "#00ffaa";
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(tx, ty, 9, 0, Math.PI * 2);
-      ctx.strokeStyle = "rgba(0,255,170,0.4)";
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      // Teacher label
-      ctx.fillStyle = "#00ffaa";
-      ctx.font = "bold 7px monospace";
-      ctx.fillText("O'QITUVCHI", tx - 24, ty - 13);
-
-      // Students
-      studentsRef.current.forEach((s, i) => {
-        const sx = (s.x / 100) * W;
-        const sy = (s.y / 100) * H;
-        const wobble = Math.sin(t * 0.5 + i) * 1.5;
-
-        // Detection box
-        ctx.strokeStyle = s.color + "88";
-        ctx.lineWidth = 0.8;
-        ctx.strokeRect(sx - 8, sy - 10 + wobble, 16, 18);
-
-        // Corner markers
-        const corners = [[-8, -10], [8, -10], [-8, 8], [8, 8]];
-        corners.forEach(([cx, cy]) => {
-          ctx.strokeStyle = s.color;
-          ctx.lineWidth = 1.5;
-          ctx.beginPath();
-          const signX = cx < 0 ? 1 : -1;
-          const signY = cy < 0 ? 1 : -1;
-          ctx.moveTo(sx + cx, sy + cy + wobble + signY * 3);
-          ctx.lineTo(sx + cx, sy + cy + wobble);
-          ctx.lineTo(sx + cx + signX * 3, sy + cy + wobble);
-          ctx.stroke();
-        });
-
-        // Head dot
-        ctx.beginPath();
-        ctx.arc(sx, sy + wobble, 3, 0, Math.PI * 2);
-        ctx.fillStyle = s.color;
-        ctx.fill();
-      });
-
-      // Scan line
-      const scanY = ((t * 30) % H);
-      const scanGrad = ctx.createLinearGradient(0, scanY - 3, 0, scanY + 3);
-      scanGrad.addColorStop(0, "transparent");
-      scanGrad.addColorStop(0.5, "rgba(0,255,136,0.12)");
-      scanGrad.addColorStop(1, "transparent");
-      ctx.fillStyle = scanGrad;
-      ctx.fillRect(0, scanY - 3, W, 6);
-
-      // Noise overlay
-      for (let n = 0; n < 30; n++) {
-        const nx = Math.random() * W, ny = Math.random() * H;
-        ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.03})`;
-        ctx.fillRect(nx, ny, 1, 1);
+      if(!currentClass){
+        ctx.fillStyle="rgba(0,100,40,0.04)"; ctx.fillRect(0,0,W,H);
+        ctx.strokeStyle="rgba(0,255,100,0.04)"; ctx.lineWidth=0.5;
+        for(let i=0;i<6;i++){
+          ctx.beginPath();ctx.moveTo(0,i*(H/5));ctx.lineTo(W,i*(H/5));ctx.stroke();
+          ctx.beginPath();ctx.moveTo(i*(W/5),0);ctx.lineTo(i*(W/5),H);ctx.stroke();
+        }
+        ctx.fillStyle="rgba(0,255,100,0.25)"; ctx.font="7px monospace"; ctx.textAlign="center";
+        ctx.fillText("BO'SH XONA",W/2,H/2-5);
+        ctx.fillStyle="rgba(0,255,100,0.12)"; ctx.font="5.5px monospace";
+        ctx.fillText("TANAFFUS",W/2,H/2+8); ctx.textAlign="left";
+      } else {
+        // perspective grid
+        ctx.strokeStyle="rgba(0,200,80,0.045)"; ctx.lineWidth=0.5;
+        for(let i=0;i<7;i++){
+          ctx.beginPath();ctx.moveTo(W*0.5,H*0.48);ctx.lineTo((i/6)*W,H);ctx.stroke();
+        }
+        for(let j=1;j<4;j++){
+          ctx.beginPath();ctx.moveTo(0,H*0.48+(j/4)*H*0.52);ctx.lineTo(W,H*0.48+(j/4)*H*0.52);ctx.stroke();
+        }
+        // board
+        ctx.fillStyle="#0a2212"; ctx.strokeStyle="#153a20"; ctx.lineWidth=1;
+        ctx.fillRect(W*0.1,H*0.04,W*0.8,H*0.27); ctx.strokeRect(W*0.1,H*0.04,W*0.8,H*0.27);
+        ctx.strokeStyle="rgba(160,220,160,0.18)"; ctx.lineWidth=0.7;
+        for(let l=0;l<3;l++){
+          ctx.beginPath();ctx.moveTo(W*0.15,H*0.1+l*13);ctx.lineTo(W*0.15+W*(0.25+Math.sin(t*0.05+l)*0.2),H*0.1+l*13);ctx.stroke();
+        }
+        // teacher
+        const tx=W*0.5+Math.sin(t*0.28)*W*0.06, ty=H*0.42;
+        ctx.beginPath();ctx.arc(tx,ty,4,0,Math.PI*2);ctx.fillStyle="#00ffaa";ctx.fill();
+        ctx.beginPath();ctx.arc(tx,ty,7.5,0,Math.PI*2);ctx.strokeStyle="rgba(0,255,170,0.28)";ctx.lineWidth=1;ctx.stroke();
+        ctx.fillStyle="#00ffaa";ctx.font="bold 5.5px monospace";ctx.fillText("O'QITUVCHI",tx-19,ty-10);
+        // students
+        const cols=6, rows=Math.ceil(Math.min(count,30)/cols);
+        for(let i=0;i<Math.min(count,30);i++){
+          const col=i%cols, row=Math.floor(i/cols);
+          const sx=W*0.08+col*(W*0.84/cols)+W*0.07;
+          const sy=H*0.53+row*(H*0.38/Math.max(rows,1));
+          const wb=Math.sin(t*0.4+i*0.8)*1.1;
+          const clrs=["#00ff88","#00ccff","#ffaa00","#ff8888","#aa88ff"];
+          const c=clrs[i%clrs.length];
+          ctx.strokeStyle=c+"55";ctx.lineWidth=0.7;ctx.strokeRect(sx-5,sy-6+wb,10,12);
+          ctx.beginPath();ctx.arc(sx,sy+wb,2.2,0,Math.PI*2);ctx.fillStyle=c;ctx.fill();
+        }
       }
 
-      // Top overlay
-      ctx.fillStyle = "rgba(0,0,0,0.5)";
-      ctx.fillRect(0, 0, W, 18);
-      ctx.fillStyle = "#00ff88";
-      ctx.font = "bold 7px monospace";
-      ctx.fillText(`● REC  ${classroom.domain}`, 5, 12);
-      ctx.fillStyle = "#ffffff88";
-      ctx.fillText(new Date().toLocaleTimeString(), W - 45, 12);
+      // scanline
+      const sy=((t*26)%H);
+      const sg=ctx.createLinearGradient(0,sy-2,0,sy+2);
+      sg.addColorStop(0,"transparent");sg.addColorStop(0.5,"rgba(0,255,100,0.09)");sg.addColorStop(1,"transparent");
+      ctx.fillStyle=sg;ctx.fillRect(0,sy-2,W,4);
+      // noise
+      for(let n=0;n<18;n++){
+        ctx.fillStyle=`rgba(255,255,255,${Math.random()*0.022})`;
+        ctx.fillRect(Math.random()*W,Math.random()*H,1,1);
+      }
+      // top bar
+      ctx.fillStyle="rgba(0,0,0,0.55)";ctx.fillRect(0,0,W,15);
+      ctx.fillStyle=currentClass?"#00ff88":"#ff4444";ctx.font="bold 5.5px monospace";
+      ctx.fillText(currentClass?"● REC":"● STANDBY",4,10);
+      ctx.fillStyle="#ffffff55";ctx.font="5px monospace";
+      ctx.fillText(room.domain,W*0.28,10);
+      ctx.fillText(new Date().toLocaleTimeString(),W-40,10);
+      // bottom bar
+      ctx.fillStyle="rgba(0,0,0,0.55)";ctx.fillRect(0,H-14,W,14);
+      ctx.fillStyle="#aaffcc";ctx.font="5px monospace";
+      ctx.fillText(currentClass?`${currentClass}  |  ${CLASS_SIZES[currentClass]} o'q  |  ${room.subject}`:`${room.subject}  |  DARS YO'Q`,4,H-4);
 
-      // Bottom overlay
-      ctx.fillStyle = "rgba(0,0,0,0.5)";
-      ctx.fillRect(0, H - 16, W, 16);
-      ctx.fillStyle = "#aaffcc";
-      ctx.font = "6px monospace";
-      ctx.fillText(`${classroom.teacher}  |  ${classroom.subject}  |  ${classroom.students} o'quvchi`, 5, H - 5);
-
-      animRef.current = requestAnimationFrame(draw);
+      animRef.current=requestAnimationFrame(draw);
     };
-
     draw();
-    return () => cancelAnimationFrame(animRef.current);
-  }, [classroom]);
+    return ()=>cancelAnimationFrame(animRef.current);
+  },[room,currentClass]);
 
-  return (
-    <div
-      onClick={onClick}
-      style={{
-        position: "relative",
-        cursor: "pointer",
-        border: isSelected ? "2px solid #00ff88" : "1px solid #1a2a1a",
-        borderRadius: 4,
-        overflow: "hidden",
-        boxShadow: isSelected ? "0 0 20px rgba(0,255,136,0.3)" : "0 2px 8px rgba(0,0,0,0.5)",
-        transition: "all 0.2s",
-      }}
-    >
-      <canvas ref={canvasRef} width={260} height={160} style={{ display: "block", width: "100%", height: "auto" }} />
-      <div style={{
-        position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-        background: isSelected ? "transparent" : "rgba(0,0,0,0)",
-        pointerEvents: "none",
-      }} />
+  return(
+    <div onClick={onClick} style={{cursor:"pointer",border:isSelected?"2px solid #00ff88":"1px solid #162216",
+      borderRadius:3,overflow:"hidden",boxShadow:isSelected?"0 0 16px rgba(0,255,136,0.22)":"none",transition:"all 0.2s"}}>
+      <canvas ref={canvasRef} width={230} height={142} style={{display:"block",width:"100%",height:"auto"}}/>
     </div>
   );
 }
 
-function AIAnalysisPanel({ classroom }) {
-  const [loading, setLoading] = useState(true);
-  const [analysis, setAnalysis] = useState(null);
-  const [error, setError] = useState(null);
+function AIPanel({room,currentClass,currentSlot}){
+  const [data,setData]=useState(null);
+  const [loading,setLoading]=useState(false);
+  const [error,setError]=useState(null);
 
-  useEffect(() => {
-    setLoading(true);
-    setAnalysis(null);
-    setError(null);
+  useEffect(()=>{
+    if(!currentClass||!currentSlot){setData(null);return;}
+    setLoading(true);setData(null);setError(null);
+    const prompt=`Sen maktab AI kuzatuv tizimisan. Tahlil qil:
 
-    const prompt = `Sen maktab sinf kuzatuv tizimining AI analitikasisin. Quyidagi sinf uchun tahlil ber:
+Xona: ${room.name} (${room.floor})
+O'qituvchi: ${room.teacher} — Fan: ${room.subject}
+Kelgan sinf: ${currentClass} (${CLASS_SIZES[currentClass]} o'quvchi)
+Joriy: ${currentSlot.label} (${currentSlot.start}–${currentSlot.end})
 
-Sinf: ${classroom.name}
-Fan: ${classroom.subject}
-O'qituvchi: ${classroom.teacher}
-O'quvchilar soni: ${classroom.students}
-Qavat: ${classroom.floor}
+FAQAT JSON (boshqa hech narsa yo'q):
+{"umumiyHolat":"YAXSHI|OʻRTACHA|YOMON","diqqat":0,"faollik":0,"intizom":0,"xulosa":"","munosabat":"","darsOqimi":"","ogohlantirishlar":[],"tavsiyalar":[],"muammolilar":0}`;
 
-Quyidagi JSON formatida javob ber (faqat JSON, boshqa hech narsa yo'q):
-{
-  "umumiyHolat": "YAXSHI|OʻRTACHA|YOMON",
-  "diqqatDarajasi": <0-100 son>,
-  "faollikDarajasi": <0-100 son>,
-  "intizomDarajasi": <0-100 son>,
-  "xulosa": "<2 jumlali qisqa tahlil>",
-  "ogohlantirishlar": ["<ogohlantirish 1>", "<ogohlantirish 2 agar bo'lsa>"],
-  "tavsiyalar": ["<tavsiya 1>", "<tavsiya 2>"],
-  "oʻqituvchiMunosabati": "<O'qituvchi-o'quvchi munosabati haqida 1 jumla>",
-  "muammoliOʻquvchilar": <0-${classroom.students} son>
-}`;
+    fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,
+        messages:[{role:"user",content:prompt}]})
+    }).then(r=>r.json()).then(d=>{
+      const txt=d.content?.[0]?.text||"";
+      setData(JSON.parse(txt.replace(/```json|```/g,"").trim()));
+      setLoading(false);
+    }).catch(()=>{setError("Tahlil yuklanmadi");setLoading(false);});
+  },[room.id,currentClass,currentSlot?.label]);
 
-    fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1000,
-        messages: [{ role: "user", content: prompt }],
-      }),
-    })
-      .then(r => r.json())
-      .then(data => {
-        const text = data.content?.[0]?.text || "";
-        const clean = text.replace(/```json|```/g, "").trim();
-        const parsed = JSON.parse(clean);
-        setAnalysis(parsed);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError("AI tahlil yuklanmadi");
-        setLoading(false);
-      });
-  }, [classroom.id]);
+  const SC={"YAXSHI":"#00ff88","OʻRTACHA":"#ffaa00","YOMON":"#ff4455"};
 
-  const statusColor = {
-    "YAXSHI": "#00ff88",
-    "OʻRTACHA": "#ffaa00",
-    "YOMON": "#ff4455",
-  };
+  if(!currentClass) return(
+    <div style={{textAlign:"center",padding:"50px 20px",color:"#2a4a2a"}}>
+      <div style={{fontSize:28,marginBottom:10}}>◌</div>
+      <div style={{fontSize:10,letterSpacing:2}}>TANAFFUS VAQTI</div>
+      <div style={{fontSize:8,marginTop:6,color:"#1a3a1a"}}>Keyingi dars boshlanishini kuting</div>
+    </div>
+  );
 
-  return (
-    <div style={{ fontFamily: "'Courier New', monospace", color: "#c8ffd8", height: "100%" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, borderBottom: "1px solid #1a3a1a", paddingBottom: 12 }}>
-        <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#00ff88", boxShadow: "0 0 8px #00ff88", animation: "pulse 1.5s infinite" }} />
-        <span style={{ fontSize: 11, color: "#88ffaa", letterSpacing: 2 }}>AI TAHLIL TIZIMI</span>
-        <span style={{ marginLeft: "auto", fontSize: 10, color: "#446644" }}>{classroom.domain}</span>
+  return(
+    <div style={{fontFamily:"monospace",color:"#c8ffd8"}}>
+      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12,borderBottom:"1px solid #1a3a1a",paddingBottom:10}}>
+        <div style={{width:7,height:7,borderRadius:"50%",background:"#00ff88",boxShadow:"0 0 8px #00ff88",animation:"pulse 1.5s infinite"}}/>
+        <span style={{fontSize:9,color:"#88ffaa",letterSpacing:2}}>AI REAL-VAQT TAHLILI</span>
+        <span style={{marginLeft:"auto",fontSize:8,color:"#446644"}}>{room.name}</span>
       </div>
-
-      {loading && (
-        <div style={{ textAlign: "center", padding: "40px 0", color: "#446644" }}>
-          <div style={{ fontSize: 28, marginBottom: 12 }}>⟳</div>
-          <div style={{ fontSize: 11, letterSpacing: 2 }}>AI TAHLIL QILMOQDA...</div>
-          <div style={{ marginTop: 10, display: "flex", justifyContent: "center", gap: 4 }}>
-            {[0, 1, 2, 3, 4].map(i => (
-              <div key={i} style={{
-                width: 3, height: 16, background: "#00ff88",
-                animation: `bar ${0.8}s ${i * 0.15}s infinite alternate`,
-                opacity: 0.3 + (i * 0.15),
-              }} />
+      {loading&&(
+        <div style={{textAlign:"center",padding:"28px 0",color:"#446644"}}>
+          <div style={{fontSize:8,letterSpacing:3,marginBottom:10}}>TAHLIL QILINMOQDA</div>
+          <div style={{display:"flex",justifyContent:"center",gap:3}}>
+            {[0,1,2,3,4].map(i=>(
+              <div key={i} style={{width:3,height:18,background:"#00ff88",
+                animation:`bar 0.7s ${i*0.12}s infinite alternate`,opacity:0.2+i*0.16}}/>
             ))}
           </div>
         </div>
       )}
-
-      {error && (
-        <div style={{ color: "#ff4455", textAlign: "center", padding: "20px", fontSize: 11 }}>
-          ⚠ {error}
-        </div>
-      )}
-
-      {analysis && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          {/* Status badge */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{
-              padding: "4px 12px", border: `1px solid ${statusColor[analysis.umumiyHolat] || "#aaa"}`,
-              color: statusColor[analysis.umumiyHolat] || "#aaa", fontSize: 11, letterSpacing: 3,
-              fontWeight: "bold",
-            }}>
-              {analysis.umumiyHolat}
-            </div>
-            <div style={{ fontSize: 10, color: "#668866" }}>
-              {classroom.teacher} — {classroom.subject}
-            </div>
+      {error&&<div style={{color:"#ff4455",fontSize:10,padding:16}}>⚠ {error}</div>}
+      {data&&(
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          <div style={{display:"flex",alignItems:"center",gap:10}}>
+            <div style={{padding:"3px 10px",border:`1px solid ${SC[data.umumiyHolat]||"#aaa"}`,
+              color:SC[data.umumiyHolat]||"#aaa",fontSize:9,letterSpacing:3}}>{data.umumiyHolat}</div>
+            <div style={{fontSize:8,color:"#668866"}}>{currentClass} · {CLASS_SIZES[currentClass]} o'quvchi</div>
           </div>
-
-          {/* Metrics */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
-            {[
-              { label: "DIQQAT", value: analysis.diqqatDarajasi, color: "#00ccff" },
-              { label: "FAOLLIK", value: analysis.faollikDarajasi, color: "#00ff88" },
-              { label: "INTIZOM", value: analysis.intizomDarajasi, color: "#ffaa00" },
-            ].map(m => (
-              <div key={m.label} style={{ background: "#060e06", border: "1px solid #1a2a1a", padding: "8px 6px", textAlign: "center" }}>
-                <div style={{ fontSize: 9, color: "#446644", letterSpacing: 1, marginBottom: 4 }}>{m.label}</div>
-                <div style={{ fontSize: 22, fontWeight: "bold", color: m.color, lineHeight: 1 }}>{m.value}</div>
-                <div style={{ marginTop: 6, height: 3, background: "#1a2a1a", borderRadius: 2 }}>
-                  <div style={{ width: `${m.value}%`, height: "100%", background: m.color, borderRadius: 2, transition: "width 1s ease" }} />
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6}}>
+            {[["DIQQAT",data.diqqat,"#00ccff"],["FAOLLIK",data.faollik,"#00ff88"],["INTIZOM",data.intizom,"#ffaa00"]].map(([l,v,c])=>(
+              <div key={l} style={{background:"#050d05",border:"1px solid #1a2a1a",padding:"6px 4px",textAlign:"center"}}>
+                <div style={{fontSize:7,color:"#446644",letterSpacing:1,marginBottom:3}}>{l}</div>
+                <div style={{fontSize:20,fontWeight:"bold",color:c}}>{v}</div>
+                <div style={{marginTop:4,height:2,background:"#1a2a1a"}}>
+                  <div style={{width:`${v}%`,height:"100%",background:c,transition:"width 1s"}}/>
                 </div>
               </div>
             ))}
           </div>
-
-          {/* Xulosa */}
-          <div style={{ background: "#050d05", border: "1px solid #1a3a1a", padding: "10px 12px", borderLeft: "3px solid #00ff88" }}>
-            <div style={{ fontSize: 9, color: "#446644", letterSpacing: 2, marginBottom: 5 }}>XULOSA</div>
-            <div style={{ fontSize: 11, lineHeight: 1.6, color: "#aaffcc" }}>{analysis.xulosa}</div>
-          </div>
-
-          {/* O'qituvchi munosabati */}
-          <div style={{ background: "#050d05", border: "1px solid #1a3a1a", padding: "10px 12px", borderLeft: "3px solid #00ccff" }}>
-            <div style={{ fontSize: 9, color: "#446644", letterSpacing: 2, marginBottom: 5 }}>O'QITUVCHI MUNOSABATI</div>
-            <div style={{ fontSize: 11, lineHeight: 1.6, color: "#aaddff" }}>{analysis["oʻqituvchiMunosabati"]}</div>
-          </div>
-
-          {/* Ogohlantirishlar */}
-          {analysis.ogohlantirishlar?.length > 0 && (
+          {[["XULOSA",data.xulosa,"#00ff88"],["DARS OQIMI",data.darsOqimi,"#00ccff"],["O'QITUVCHI MUNOSABATI",data.munosabat,"#ffaa00"]].map(([l,v,c])=>v&&(
+            <div key={l} style={{background:"#050d05",border:"1px solid #1a3a1a",padding:"7px 10px",borderLeft:`3px solid ${c}`}}>
+              <div style={{fontSize:7,color:"#446644",letterSpacing:2,marginBottom:3}}>{l}</div>
+              <div style={{fontSize:9,lineHeight:1.6,color:c+"bb"}}>{v}</div>
+            </div>
+          ))}
+          {data.ogohlantirishlar?.filter(Boolean).length>0&&(
             <div>
-              <div style={{ fontSize: 9, color: "#ff8844", letterSpacing: 2, marginBottom: 6 }}>⚠ OGOHLANTIRISHLAR</div>
-              {analysis.ogohlantirishlar.map((w, i) => (
-                <div key={i} style={{ fontSize: 10, color: "#ffaa88", padding: "4px 0", borderBottom: "1px solid #1a0a0a", display: "flex", gap: 6 }}>
-                  <span style={{ color: "#ff4455" }}>›</span> {w}
-                </div>
+              <div style={{fontSize:7,color:"#ff8844",letterSpacing:2,marginBottom:4}}>⚠ OGOHLANTIRISHLAR</div>
+              {data.ogohlantirishlar.filter(Boolean).map((w,i)=>(
+                <div key={i} style={{fontSize:9,color:"#ffaa88",padding:"3px 0",borderBottom:"1px solid #1a0a0a"}}>› {w}</div>
               ))}
             </div>
           )}
-
-          {/* Tavsiyalar */}
           <div>
-            <div style={{ fontSize: 9, color: "#44ff88", letterSpacing: 2, marginBottom: 6 }}>✓ TAVSIYALAR</div>
-            {analysis.tavsiyalar?.map((t, i) => (
-              <div key={i} style={{ fontSize: 10, color: "#88ffaa", padding: "4px 0", borderBottom: "1px solid #0a1a0a", display: "flex", gap: 6 }}>
-                <span style={{ color: "#00ff88" }}>›</span> {t}
-              </div>
+            <div style={{fontSize:7,color:"#44ff88",letterSpacing:2,marginBottom:4}}>✓ TAVSIYALAR</div>
+            {data.tavsiyalar?.map((t,i)=>(
+              <div key={i} style={{fontSize:9,color:"#88ffaa",padding:"3px 0",borderBottom:"1px solid #0a1a0a"}}>› {t}</div>
             ))}
           </div>
-
-          {/* Muammoli o'quvchilar */}
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#446644", marginTop: 4 }}>
+          <div style={{display:"flex",justifyContent:"space-between",fontSize:8,color:"#446644"}}>
             <span>Muammoli o'quvchilar:</span>
-            <span style={{ color: analysis["muammoliOʻquvchilar"] > 3 ? "#ff4455" : "#ffaa00", fontWeight: "bold" }}>
-              {analysis["muammoliOʻquvchilar"]} / {classroom.students}
+            <span style={{color:data.muammolilar>3?"#ff4455":"#ffaa00",fontWeight:"bold"}}>
+              {data.muammolilar} / {CLASS_SIZES[currentClass]}
             </span>
           </div>
         </div>
@@ -383,275 +258,293 @@ Quyidagi JSON formatida javob ber (faqat JSON, boshqa hech narsa yo'q):
   );
 }
 
-function HourlyChart({ data }) {
-  const maxVal = 100;
-  return (
-    <div style={{ padding: "0 4px" }}>
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 60 }}>
-        {data.map((d, i) => (
-          <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-            <div style={{ display: "flex", gap: 1, alignItems: "flex-end", height: 50 }}>
-              {[
-                { v: d.engagement, c: "#00ff88" },
-                { v: d.attention, c: "#00ccff" },
-                { v: d.behavior, c: "#ffaa00" },
-              ].map((b, j) => (
-                <div key={j} style={{
-                  width: 4, height: (b.v / maxVal) * 50,
-                  background: b.c, opacity: 0.8, borderRadius: "1px 1px 0 0",
-                }} />
-              ))}
-            </div>
-            <div style={{ fontSize: 7, color: "#446644", whiteSpace: "nowrap" }}>{d.hour}</div>
-          </div>
-        ))}
+function BellTimer({slot,elapsed,total}){
+  const remaining=total-elapsed;
+  const pct=(elapsed/total)*100;
+  const mins=Math.floor(remaining);
+  const secs=Math.round((remaining-mins)*60);
+  const color=slot?.type==="bigbreak"?"#ffaa00":slot?.type==="break"?"#ff8844":"#00ff88";
+  const icon=slot?.type==="bigbreak"?"☕":slot?.type==="break"?"🔔":"📚";
+  return(
+    <div style={{display:"flex",alignItems:"center",gap:10,padding:"6px 12px",
+      border:`1px solid ${color}33`,background:`${color}07`,borderRadius:2,flex:1}}>
+      <div style={{fontSize:8,color,letterSpacing:1.5,minWidth:90}}>
+        {icon} {slot?.label?.toUpperCase()||""}
       </div>
-      <div style={{ display: "flex", gap: 10, marginTop: 8, justifyContent: "center" }}>
-        {[["Faollik", "#00ff88"], ["Diqqat", "#00ccff"], ["Intizom", "#ffaa00"]].map(([l, c]) => (
-          <div key={l} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 8, color: "#668866" }}>
-            <div style={{ width: 6, height: 6, background: c }} /> {l}
-          </div>
-        ))}
+      <div style={{flex:1,height:3,background:"#1a3a1a",borderRadius:2,overflow:"hidden"}}>
+        <div style={{width:`${pct}%`,height:"100%",background:color,borderRadius:2,transition:"width 1s linear"}}/>
+      </div>
+      <div style={{fontSize:13,fontWeight:"bold",color,fontFamily:"monospace",minWidth:44,textAlign:"right"}}>
+        {String(mins).padStart(2,"0")}:{String(secs).padStart(2,"0")}
       </div>
     </div>
   );
 }
 
-export default function App() {
-  const [selected, setSelected] = useState(CLASSROOMS[0]);
-  const [activeTab, setTab] = useState("grid");
-  const [time, setTime] = useState(new Date());
+function ScheduleTable({selectedRoomId,currentSlotIndex}){
+  return(
+    <div style={{overflowX:"auto"}}>
+      <table style={{width:"100%",borderCollapse:"collapse",fontSize:9,minWidth:800}}>
+        <thead>
+          <tr style={{borderBottom:"1px solid #1a3a1a"}}>
+            <th style={{padding:"7px 12px",textAlign:"left",color:"#446644",fontWeight:"normal",fontSize:7,letterSpacing:1,whiteSpace:"nowrap",minWidth:130}}>
+              XONA / O'QITUVCHI
+            </th>
+            {SCHEDULE.map((s,i)=>(
+              <th key={i} style={{padding:"5px 6px",textAlign:"center",fontSize:7,whiteSpace:"nowrap",
+                color:s.type==="lesson"?"#88ffaa":s.type==="bigbreak"?"#ffaa00":"#446644",
+                fontWeight:s.type==="lesson"?"bold":"normal",letterSpacing:0.5,
+                background:i===currentSlotIndex?"rgba(0,255,136,0.07)":"transparent",
+                borderBottom:i===currentSlotIndex?"2px solid #00ff88":"2px solid transparent"}}>
+                {s.label}<br/>
+                <span style={{fontSize:6,opacity:0.5}}>{s.start}</span>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {ROOMS.map(room=>(
+            <tr key={room.id} style={{borderBottom:"1px solid #0d1a0d",
+              background:room.id===selectedRoomId?"rgba(0,255,136,0.03)":"transparent"}}>
+              <td style={{padding:"6px 12px",whiteSpace:"nowrap"}}>
+                <div style={{fontSize:9,color:room.id===selectedRoomId?"#00ff88":"#88ffaa",fontWeight:"bold"}}>{room.name}</div>
+                <div style={{fontSize:7,color:"#446644"}}>{room.teacher} · {room.subject}</div>
+              </td>
+              {SCHEDULE.map((s,i)=>{
+                const cls=s.type==="lesson"?ROTATION[s.period]?.[room.id-1]:null;
+                return(
+                  <td key={i} style={{padding:"5px 6px",textAlign:"center",
+                    background:i===currentSlotIndex?"rgba(0,255,136,0.05)":"transparent"}}>
+                    {s.type==="lesson"&&cls?(
+                      <div style={{background:"#0a1a0a",border:"1px solid #1a3a1a",padding:"2px 5px",
+                        fontSize:8,color:"#88ffaa",display:"inline-block",borderRadius:2,
+                        boxShadow:i===currentSlotIndex?"0 0 6px rgba(0,255,136,0.2)":"none"}}>
+                        {cls}
+                      </div>
+                    ):s.type==="bigbreak"?(
+                      <div style={{fontSize:8,color:"#ffaa00"}}>☕{s.duration}′</div>
+                    ):s.type==="break"?(
+                      <div style={{fontSize:7,color:"#2a4a2a"}}>—{s.duration}′</div>
+                    ):null}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
-  useEffect(() => {
-    const t = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(t);
-  }, []);
+export default function App(){
+  const [tab,setTab]=useState("cameras");
+  const [selectedRoom,setSelectedRoom]=useState(ROOMS[0]);
+  const [simMin,setSimMin]=useState(null);
+  const [realMin,setRealMin]=useState(()=>{const n=new Date();return n.getHours()*60+n.getMinutes()+n.getSeconds()/60;});
+  const [clockTime,setClockTime]=useState(new Date());
 
-  return (
-    <div style={{
-      minHeight: "100vh",
-      // maxWidth: 1200, 
-      margin: "0 auto",
-      justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column",
-      background: "#030806",
-      fontFamily: "'Courier New', monospace",
-      color: "#c8ffd8",
-    }}>
+  useEffect(()=>{
+    const t=setInterval(()=>{
+      setClockTime(new Date());
+      const n=new Date();setRealMin(n.getHours()*60+n.getMinutes()+n.getSeconds()/60);
+    },1000);
+    return()=>clearInterval(t);
+  },[]);
+
+  const currentMins=simMin!==null?simMin:realMin;
+  const slotInfo=getCurrentSlot(currentMins);
+  const currentSlotIndex=slotInfo?.index??null;
+  const currentSlot=slotInfo?.slot;
+
+  const currentClass=currentSlot?.type==="lesson"?ROTATION[currentSlot.period]?.[selectedRoom.id-1]:null;
+  const roomCurrentClasses=ROOMS.map(r=>currentSlot?.type==="lesson"?ROTATION[currentSlot.period]?.[r.id-1]:null);
+
+  const nextLesson=SCHEDULE.slice((currentSlotIndex||0)+1).find(s=>s.type==="lesson");
+  const nextClassForRoom=nextLesson?ROTATION[nextLesson.period]?.[selectedRoom.id-1]:null;
+
+  const simHH=String(Math.floor((simMin??currentMins)/60)).padStart(2,"0");
+  const simMM=String(Math.floor((simMin??currentMins)%60)).padStart(2,"0");
+
+  return(
+    <div style={{minHeight:"100vh",background:"#030806",fontFamily:"'Courier New',monospace",color:"#c8ffd8"}}>
       <style>{`
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-        @keyframes bar { from{transform:scaleY(0.3)} to{transform:scaleY(1)} }
-        @keyframes scanline { 0%{top:-2px} 100%{top:100%} }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #060e06; }
-        ::-webkit-scrollbar-thumb { background: #1a3a1a; }
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+        @keyframes bar{from{transform:scaleY(0.3)}to{transform:scaleY(1)}}
+        *{box-sizing:border-box;margin:0;padding:0;}
+        ::-webkit-scrollbar{width:4px;height:4px;}
+        ::-webkit-scrollbar-track{background:#060e06;}
+        ::-webkit-scrollbar-thumb{background:#1a3a1a;border-radius:2px;}
+        button:hover{opacity:0.85;}
       `}</style>
 
-      {/* Header */}
-      <div style={{
-        background: "#030806", borderBottom: "1px solid #0d2010",
-        padding: "12px 24px", display: "flex", alignItems: "center", gap: 16,
-      }}>
-        <div style={{
-          width: 28, height: 28, border: "1px solid #00ff88",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 14, color: "#00ff88",
-        }}>◈</div>
+      {/* HEADER */}
+      <div style={{background:"#030806",borderBottom:"1px solid #0d2010",padding:"9px 18px",display:"flex",alignItems:"center",gap:12}}>
+        <div style={{border:"1px solid #00ff88",padding:"4px 7px",fontSize:13,color:"#00ff88"}}>◈</div>
         <div>
-          <div style={{ fontSize: 13, fontWeight: "bold", letterSpacing: 3, color: "#00ff88" }}>
-            CLASSWATCH AI
-          </div>
-          <div style={{ fontSize: 8, color: "#446644", letterSpacing: 2 }}>
-            SINF KUZATUV TIZIMI
-          </div>
+          <div style={{fontSize:12,fontWeight:"bold",letterSpacing:3,color:"#00ff88"}}>CLASSWATCH AI</div>
+          <div style={{fontSize:6,color:"#446644",letterSpacing:2}}>O'QITUVCHI XONALARI · SINF ROTATSIYASI</div>
         </div>
-        <div style={{ marginLeft: "auto", display: "flex", gap: 20, alignItems: "center" }}>
-          <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 16, fontWeight: "bold", color: "#00ff88", letterSpacing: 2 }}>
-              {time.toLocaleTimeString()}
-            </div>
-            <div style={{ fontSize: 8, color: "#446644" }}>
-              {time.toLocaleDateString("uz-UZ")}
+        <div style={{flex:1,marginLeft:12}}>
+          {slotInfo&&<BellTimer slot={currentSlot} elapsed={slotInfo.elapsed} total={slotInfo.total}/>}
+        </div>
+        <div style={{display:"flex",gap:10,alignItems:"center"}}>
+          <div style={{display:"flex",flexDirection:"column",gap:2,alignItems:"flex-end"}}>
+            <div style={{fontSize:6,color:"#446644",letterSpacing:1}}>VAQT SIMULYATSIYASI</div>
+            <div style={{display:"flex",alignItems:"center",gap:5}}>
+              <input type="range" min={480} max={885} step={1}
+                value={simMin!==null?simMin:currentMins}
+                onChange={e=>setSimMin(Number(e.target.value))}
+                style={{width:90,accentColor:"#00ff88"}}/>
+              <button onClick={()=>setSimMin(null)} style={{background:"none",border:"1px solid #1a3a1a",
+                color:"#446644",fontSize:6,padding:"2px 5px",cursor:"pointer",fontFamily:"inherit",letterSpacing:1}}>
+                REAL
+              </button>
             </div>
           </div>
-          <div style={{ display: "flex", gap: 6 }}>
-            {[
-              { v: CLASSROOMS.length, l: "KAMERA" },
-              { v: CLASSROOMS.reduce((a, c) => a + c.students, 0), l: "O'QUVCHI" },
-              { v: CLASSROOMS.length, l: "FAOL" },
-            ].map(s => (
-              <div key={s.l} style={{
-                border: "1px solid #1a3a1a", padding: "4px 10px", textAlign: "center",
-                minWidth: 60,
-              }}>
-                <div style={{ fontSize: 16, fontWeight: "bold", color: "#00ff88" }}>{s.v}</div>
-                <div style={{ fontSize: 7, color: "#446644", letterSpacing: 1 }}>{s.l}</div>
-              </div>
-            ))}
+          <div style={{textAlign:"right"}}>
+            <div style={{fontSize:17,fontWeight:"bold",color:"#00ff88",letterSpacing:2,lineHeight:1}}>
+              {simMin!==null?`${simHH}:${simMM}`:clockTime.toLocaleTimeString()}
+            </div>
+            <div style={{fontSize:6,color:"#446644"}}>{clockTime.toLocaleDateString("uz-UZ")}</div>
           </div>
         </div>
       </div>
 
-      {/* Nav */}
-      <div style={{
-        borderBottom: "1px solid #0d2010", padding: "0 24px",
-        display: "flex", gap: 0,
-      }}>
-        {[["grid", "▦  KAMERALAR"], ["analysis", "◈  TAHLIL"], ["hourly", "▬  SOATLIK"]].map(([id, label]) => (
-          <button key={id} onClick={() => setTab(id)} style={{
-            background: "none", border: "none", borderBottom: activeTab === id ? "2px solid #00ff88" : "2px solid transparent",
-            color: activeTab === id ? "#00ff88" : "#446644", padding: "10px 16px",
-            cursor: "pointer", fontSize: 10, letterSpacing: 2, fontFamily: "inherit",
-            transition: "all 0.2s",
-          }}>
-            {label}
+      {/* NAV */}
+      <div style={{borderBottom:"1px solid #0d2010",padding:"0 18px",display:"flex",gap:0,alignItems:"center"}}>
+        {[["cameras","▦  KAMERALAR"],["analysis","◈  AI TAHLIL"],["schedule","▬  JADVAL"]].map(([id,lbl])=>(
+          <button key={id} onClick={()=>setTab(id)} style={{background:"none",border:"none",
+            borderBottom:tab===id?"2px solid #00ff88":"2px solid transparent",
+            color:tab===id?"#00ff88":"#446644",padding:"8px 14px",cursor:"pointer",
+            fontSize:8,letterSpacing:2,fontFamily:"inherit",transition:"all 0.2s"}}>
+            {lbl}
           </button>
         ))}
+        <div style={{marginLeft:"auto",display:"flex",gap:14,alignItems:"center",fontSize:8,color:"#446644"}}>
+          <span>Faol: <span style={{color:"#00ff88"}}>{currentSlot?.type==="lesson"?ROOMS.length:0}/{ROOMS.length}</span></span>
+          <span>Bu xonada: <span style={{color:"#00ccff"}}>{currentClass||"—"}</span></span>
+          {nextClassForRoom&&<span>Keyingi: <span style={{color:"#ffaa00"}}>{nextClassForRoom} ({nextLesson?.start})</span></span>}
+        </div>
       </div>
 
-      <div style={{ display: "flex", height: "calc(100vh - 110px)" }}>
-        {/* Left: Camera Grid */}
-        <div style={{
-          width: activeTab === "analysis" ? "45%" : "100%",
-          borderRight: "1px solid #0d2010", overflowY: "auto", padding: 16,
-          display: activeTab === "hourly" ? "none" : "block",
-        }}>
-          {activeTab !== "hourly" && (
-            <>
-              <div style={{ fontSize: 9, color: "#446644", letterSpacing: 3, marginBottom: 12 }}>
-                ● JONLI KAMERA OQIMI — {CLASSROOMS.length} SINF
-              </div>
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: activeTab === "analysis" ? "1fr 1fr" : "repeat(3, 1fr)",
-                gap: 8,
-              }}>
-                {CLASSROOMS.map(c => (
-                  <div key={c.id}>
-                    <div style={{ fontSize: 8, color: "#446644", marginBottom: 3, letterSpacing: 1 }}>
-                      {c.name} — {c.floor}
-                    </div>
-                    <CameraFeed
-                      classroom={c}
-                      isSelected={selected?.id === c.id}
-                      onClick={() => { setSelected(c); if (activeTab === "grid") setTab("analysis"); }}
-                    />
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Right: AI Analysis */}
-        {activeTab === "analysis" && (
-          <div style={{
-            flex: 1, overflowY: "auto", padding: 20,
-            background: "#040b04",
-          }}>
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 9, color: "#446644", letterSpacing: 3, marginBottom: 6 }}>
-                TANLANGAN SINF
-              </div>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {CLASSROOMS.map(c => (
-                  <button key={c.id} onClick={() => setSelected(c)} style={{
-                    background: selected?.id === c.id ? "#0a2a0a" : "none",
-                    border: `1px solid ${selected?.id === c.id ? "#00ff88" : "#1a3a1a"}`,
-                    color: selected?.id === c.id ? "#00ff88" : "#446644",
-                    padding: "3px 10px", cursor: "pointer", fontSize: 9,
-                    fontFamily: "inherit", letterSpacing: 1,
-                  }}>{c.name}</button>
-                ))}
-              </div>
+      <div style={{display:"flex",height:"calc(100vh - 105px)"}}>
+        {/* CAMERAS */}
+        {tab==="cameras"&&(
+          <div style={{flex:1,overflowY:"auto",padding:14}}>
+            <div style={{fontSize:7,color:"#446644",letterSpacing:3,marginBottom:10}}>
+              ● O'QITUVCHI XONALARI — JONLI OQIM
+              {currentSlot&&<span style={{marginLeft:14,color:currentSlot.type==="lesson"?"#00ff88":"#ffaa00"}}>
+                {" "}{currentSlot.label.toUpperCase()} · {currentSlot.start}–{currentSlot.end}
+              </span>}
             </div>
-            {selected && <AIAnalysisPanel key={selected.id} classroom={selected} />}
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+              {ROOMS.map((room,ri)=>{
+                const cls=roomCurrentClasses[ri];
+                return(
+                  <div key={room.id} onClick={()=>{setSelectedRoom(room);setTab("analysis");}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3}}>
+                      <div style={{fontSize:8,color:"#88ffaa",fontWeight:"bold"}}>
+                        {room.name} <span style={{color:"#446644",fontWeight:"normal"}}>· {room.subject}</span>
+                      </div>
+                      {cls
+                        ?<div style={{fontSize:7,background:"#0a2a0a",border:"1px solid #1a3a1a",padding:"1px 6px",color:"#00ff88"}}>{cls}</div>
+                        :<div style={{fontSize:7,color:"#ff4444"}}>BO'SH</div>
+                      }
+                    </div>
+                    <CameraFeed room={room} currentClass={cls} isSelected={selectedRoom?.id===room.id} onClick={()=>{}}/>
+                    <div style={{fontSize:7,color:"#446644",marginTop:2,display:"flex",justifyContent:"space-between"}}>
+                      <span>{room.teacher}</span><span>{room.floor}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 
-        {/* Hourly Tab */}
-        {activeTab === "hourly" && (
-          <div style={{ flex: 1, padding: 24, overflowY: "auto" }}>
-            <div style={{ fontSize: 9, color: "#446644", letterSpacing: 3, marginBottom: 20 }}>
-              ▬ BUGUNGI SOATLIK MA'LUMOTLAR
+        {/* ANALYSIS */}
+        {tab==="analysis"&&(
+          <>
+            <div style={{width:"43%",borderRight:"1px solid #0d2010",overflowY:"auto",padding:14}}>
+              <div style={{fontSize:7,color:"#446644",letterSpacing:3,marginBottom:10}}>XONA TANLANG</div>
+              <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                {ROOMS.map((room,ri)=>{
+                  const cls=roomCurrentClasses[ri];
+                  return(
+                    <div key={room.id} onClick={()=>setSelectedRoom(room)} style={{cursor:"pointer"}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3}}>
+                        <div style={{fontSize:8,color:selectedRoom?.id===room.id?"#00ff88":"#88ffaa",fontWeight:"bold"}}>{room.name}</div>
+                        {cls
+                          ?<div style={{fontSize:7,background:"#0a2a0a",border:"1px solid #1a3a1a",padding:"1px 6px",color:"#00ff88"}}>{cls}</div>
+                          :<div style={{fontSize:7,color:"#ff4444"}}>BO'SH</div>
+                        }
+                      </div>
+                      <CameraFeed room={room} currentClass={cls} isSelected={selectedRoom?.id===room.id} onClick={()=>{}}/>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
-              {CLASSROOMS.map(c => (
-                <div key={c.id} style={{
-                  border: "1px solid #1a3a1a", padding: 14, background: "#040b04",
-                }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-                    <div style={{ fontSize: 11, color: "#88ffaa", fontWeight: "bold" }}>{c.name}</div>
-                    <div style={{ fontSize: 9, color: "#446644" }}>{c.subject}</div>
-                  </div>
-                  <HourlyChart data={HOUR_DATA.map(d => ({
-                    ...d,
-                    engagement: Math.max(30, d.engagement + Math.floor((Math.random() - 0.5) * 20)),
-                    attention: Math.max(30, d.attention + Math.floor((Math.random() - 0.5) * 20)),
-                    behavior: Math.max(50, d.behavior + Math.floor((Math.random() - 0.5) * 15)),
-                  }))} />
-                  <div style={{ marginTop: 8, fontSize: 9, color: "#446644", display: "flex", justifyContent: "space-between" }}>
-                    <span>{c.teacher}</span>
-                    <span>{c.students} ta</span>
-                  </div>
-                </div>
-              ))}
+            <div style={{flex:1,overflowY:"auto",padding:18,background:"#040b04"}}>
+              <AIPanel room={selectedRoom} currentClass={currentClass} currentSlot={currentSlot}/>
+            </div>
+          </>
+        )}
+
+        {/* SCHEDULE */}
+        {tab==="schedule"&&(
+          <div style={{flex:1,overflowY:"auto",padding:18}}>
+            <div style={{fontSize:7,color:"#446644",letterSpacing:3,marginBottom:10}}>
+              ▬ KUNLIK JADVAL — XONALAR & SINFLAR ROTATSIYASI (45 DAQIQA)
+            </div>
+            <div style={{display:"flex",gap:14,marginBottom:14,fontSize:7,color:"#446644",flexWrap:"wrap"}}>
+              <div style={{display:"flex",alignItems:"center",gap:5}}>
+                <div style={{width:8,height:8,background:"rgba(0,255,136,0.07)",border:"1px solid #00ff88"}}/><span>Joriy vaqt</span>
+              </div>
+              <div style={{display:"flex",alignItems:"center",gap:5}}>
+                <div style={{width:8,height:8,background:"#0a1a0a",border:"1px solid #1a3a1a"}}/><span>Sinf</span>
+              </div>
+              <div style={{display:"flex",alignItems:"center",gap:5}}>
+                <span>☕</span><span>Katta tanaffus</span>
+              </div>
+              <div style={{display:"flex",alignItems:"center",gap:5}}>
+                <span style={{color:"#ff8844"}}>2-darsdan keyin:</span>
+                <span style={{color:"#ffaa00"}}>10 daqiqa tanaffus</span>
+              </div>
+              <div style={{display:"flex",alignItems:"center",gap:5}}>
+                <span style={{color:"#ff8844"}}>5-darsdan keyin:</span>
+                <span style={{color:"#ffaa00"}}>40 daqiqa tanaffus</span>
+              </div>
             </div>
 
-            {/* Summary table */}
-            <div style={{ marginTop: 24, border: "1px solid #1a3a1a" }}>
-              <div style={{ background: "#060e06", padding: "8px 14px", fontSize: 9, letterSpacing: 2, color: "#446644", borderBottom: "1px solid #1a3a1a" }}>
-                SOATLIK UMUMIY STATISTIKA
+            <ScheduleTable selectedRoomId={selectedRoom?.id} currentSlotIndex={currentSlotIndex}/>
+
+            {/* Period cards */}
+            <div style={{marginTop:18}}>
+              <div style={{fontSize:7,color:"#446644",letterSpacing:3,marginBottom:10}}>
+                DARS BLOKLARI — ROTATSIYA TAFSILOTI
               </div>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10 }}>
-                <thead>
-                  <tr style={{ borderBottom: "1px solid #1a3a1a" }}>
-                    {["SOAT", "FAOLLIK", "DIQQAT", "INTIZOM", "HOLAT"].map(h => (
-                      <th key={h} style={{ padding: "6px 14px", textAlign: "left", color: "#446644", fontWeight: "normal", letterSpacing: 1, fontSize: 8 }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {HOUR_DATA.map((d, i) => (
-                    <tr key={i} style={{ borderBottom: "1px solid #0a1a0a" }}>
-                      <td style={{ padding: "6px 14px", color: "#88ffaa" }}>{d.hour}</td>
-                      <td style={{ padding: "6px 14px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <div style={{ width: 40, height: 3, background: "#1a3a1a", borderRadius: 2 }}>
-                            <div style={{ width: `${d.engagement}%`, height: "100%", background: "#00ff88", borderRadius: 2 }} />
-                          </div>
-                          <span style={{ color: "#00ff88", fontSize: 9 }}>{d.engagement}%</span>
-                        </div>
-                      </td>
-                      <td style={{ padding: "6px 14px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <div style={{ width: 40, height: 3, background: "#1a3a1a", borderRadius: 2 }}>
-                            <div style={{ width: `${d.attention}%`, height: "100%", background: "#00ccff", borderRadius: 2 }} />
-                          </div>
-                          <span style={{ color: "#00ccff", fontSize: 9 }}>{d.attention}%</span>
-                        </div>
-                      </td>
-                      <td style={{ padding: "6px 14px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <div style={{ width: 40, height: 3, background: "#1a3a1a", borderRadius: 2 }}>
-                            <div style={{ width: `${d.behavior}%`, height: "100%", background: "#ffaa00", borderRadius: 2 }} />
-                          </div>
-                          <span style={{ color: "#ffaa00", fontSize: 9 }}>{d.behavior}%</span>
-                        </div>
-                      </td>
-                      <td style={{ padding: "6px 14px" }}>
-                        <span style={{
-                          fontSize: 8, padding: "2px 7px", letterSpacing: 1,
-                          border: `1px solid ${d.engagement > 75 ? "#00ff88" : d.engagement > 55 ? "#ffaa00" : "#ff4455"}`,
-                          color: d.engagement > 75 ? "#00ff88" : d.engagement > 55 ? "#ffaa00" : "#ff4455",
-                        }}>
-                          {d.engagement > 75 ? "YAXSHI" : d.engagement > 55 ? "O'RTACHA" : "YOMON"}
+              <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
+                {SCHEDULE.filter(s=>s.type==="lesson").map(s=>(
+                  <div key={s.period} style={{border:"1px solid #1a3a1a",padding:10,background:"#040b04",
+                    borderTop:currentSlot?.period===s.period?"2px solid #00ff88":"1px solid #1a3a1a"}}>
+                    <div style={{display:"flex",justifyContent:"space-between",marginBottom:7}}>
+                      <div style={{fontSize:9,color:"#88ffaa",fontWeight:"bold"}}>{s.label}</div>
+                      <div style={{fontSize:7,color:"#446644"}}>{s.start}–{s.end}</div>
+                    </div>
+                    {ROOMS.map((room,ri)=>(
+                      <div key={room.id} style={{display:"flex",justifyContent:"space-between",
+                        padding:"2px 0",borderBottom:"1px solid #0a1a0a",fontSize:8}}>
+                        <span style={{color:"#446644"}}>{room.name}</span>
+                        <span style={{color:currentSlot?.period===s.period&&selectedRoom.id===room.id?"#00ff88":"#88ffaa"}}>
+                          → {ROTATION[s.period]?.[ri]}
                         </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
